@@ -17,10 +17,10 @@ class MyWindow(QMainWindow, form_class):
         if fname[0]:
             print("파일 경로")
             print(fname[0])
+            df = pd.read_csv(fname[0], encoding='cp949')
+            print(df)
         else:
             print("파일 안 골랐음")
-        df = pd.read_csv(fname[0], encoding='cp949')
-        print(df)
 
 
 
