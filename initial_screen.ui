@@ -267,22 +267,12 @@ color: rgb(255, 255, 255);</string>
      </property>
     </widget>
    </widget>
-   <widget class="QTableView" name="tableView">
-    <property name="geometry">
-     <rect>
-      <x>20</x>
-      <y>120</y>
-      <width>1171</width>
-      <height>721</height>
-     </rect>
-    </property>
-   </widget>
    <widget class="QLabel" name="nochcFile_announce">
     <property name="geometry">
      <rect>
-      <x>480</x>
-      <y>420</y>
-      <width>281</width>
+      <x>470</x>
+      <y>440</y>
+      <width>301</width>
       <height>41</height>
      </rect>
     </property>
@@ -306,6 +296,28 @@ color: rgb(255, 255, 255);</string>
      <enum>Qt::Horizontal</enum>
     </property>
    </widget>
+   <widget class="QTableWidget" name="tableWidget">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>110</y>
+      <width>1171</width>
+      <height>721</height>
+     </rect>
+    </property>
+   </widget>
+   <zorder>tableWidget</zorder>
+   <zorder>txtBr_file_nm</zorder>
+   <zorder>pushBt_file_chc</zorder>
+   <zorder>label_file_nm</zorder>
+   <zorder>pushBt_rules_recommd</zorder>
+   <zorder>pushBt_diagnosis</zorder>
+   <zorder>pushBt_initial</zorder>
+   <zorder>pushBt_restart</zorder>
+   <zorder>pushBt_improve</zorder>
+   <zorder>frame</zorder>
+   <zorder>nochcFile_announce</zorder>
+   <zorder>line</zorder>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
