@@ -246,7 +246,7 @@ color: rgb(255, 255, 255);</string>
       <set>Qt::AlignCenter</set>
      </property>
     </widget>
-    <widget class="QTextBrowser" name="columnView">
+    <widget class="QTextBrowser" name="rowView">
      <property name="geometry">
       <rect>
        <x>140</x>
@@ -325,7 +325,7 @@ color: rgb(255, 255, 255);</string>
      <x>0</x>
      <y>0</y>
      <width>1201</width>
-     <height>21</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu">
