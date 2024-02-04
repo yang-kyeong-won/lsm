@@ -246,7 +246,7 @@ color: rgb(255, 255, 255);</string>
       <set>Qt::AlignCenter</set>
      </property>
     </widget>
-    <widget class="QTextBrowser" name="rowView">
+    <widget class="QTextBrowser" name="rows_count">
      <property name="geometry">
       <rect>
        <x>140</x>
@@ -256,7 +256,7 @@ color: rgb(255, 255, 255);</string>
       </rect>
      </property>
     </widget>
-    <widget class="QTextBrowser" name="columnView_2">
+    <widget class="QTextBrowser" name="columns_count">
      <property name="geometry">
       <rect>
        <x>140</x>
