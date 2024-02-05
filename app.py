@@ -6,7 +6,6 @@ from PyQt5 import uic
 
 form_class = uic.loadUiType('initial_screen.ui')[0]
 
-
 class MyWindow(QMainWindow, form_class):
     def __init__(self):
         super().__init__()
@@ -26,6 +25,18 @@ class MyWindow(QMainWindow, form_class):
         # 진단 버튼 클릭
         self.pushBt_diagnosis.clicked.connect(
             lambda state, widget=self.tableWidget: self.pushBt_diagnosis_clicked(state, widget))
+
+        self.pushBt_restart.clicked.connect(lambda state,
+                                                    widget=self.tableWidget,
+                                                    announce=self.nochcFile_announce,
+                                                    fileName=self.txtBr_file_nm,
+                                                    rows=self.rows_count,
+                                                    columns=self.columns_count: self.pushBt_restart_clicked(state,
+                                                                                                             widget,
+                                                                                                             announce,
+                                                                                                             fileName,
+                                                                                                             rows,
+                                                                                                             columns))
 
     # 파일선택 버튼 클릭 함수
     def pushBt_file_chc_clicked(self, state, widget, announce, fileName, rows, columns):
@@ -78,6 +89,15 @@ class MyWindow(QMainWindow, form_class):
         else:
             print("열 이름 한글 존재")
 
+    # 재시작 버튼 클릭 함수
+    def pushBt_restart_clicked(self, state, widget, announce, fileName, rows, columns):
+        widget.clear()
+        widget.setRowCount(0)
+        widget.setColumnCount(0)
+        announce.setText("선택된 csv 파일이 없습니다.")
+        fileName.clear()
+        rows.clear()
+        columns.clear()
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
