@@ -10,6 +10,7 @@ class MyWindow(QMainWindow, form_class):
     def __init__(self):
         super().__init__()
         self.setupUi(self)
+        self.combobox = QComboBox(self)
         # 파일선택 버튼 클릭
         self.pushBt_file_chc.clicked.connect(lambda state,
                                                     widget=self.tableWidget,
@@ -52,23 +53,32 @@ class MyWindow(QMainWindow, form_class):
             # Table widget 구성
             self.create_table_widget(widget, df)
             # 행, 열 갯수 출력
-            rows.setText(str(widget.rowCount()))
+            rows.setText(str(widget.rowCount()-1))              # 첫 행은 제외
             columns.setText(str(widget.columnCount()))
         else:
             print("파일 안 골랐음")
 
     # TableWidget 구성 함수
     def create_table_widget(self, widget, df):
-        widget.setRowCount(len(df.index))
+        widget.setRowCount(len(df.index)+1)                     # 첫 행에 Combobox 넣기 위해 행 갯수 1 늘림
         widget.setColumnCount(len(df.columns))
         # widget.setHorizontalHeaderLabels(df.columns)
         # widget.setVerticalHeaderLabels(df.index)
-
+        self.combobox.addItem("날짜")
+        self.combobox.addItem("숫자")
         for row_index, row in enumerate(df.index):
             for col_index, column in enumerate(df.columns):
                 value = df.loc[row][column]
                 item = QTableWidgetItem(str(value))
-                widget.setItem(row_index, col_index, item)
+                widget.setItem(row_index+1, col_index, item)    # 첫 행 비워 놓고 데이터 채우기
+        colcount = widget.columnCount()
+        for i in range(0, colcount):
+            locals()['cb{}'.format(i)] = QComboBox(self)
+            cb = locals()['cb{}'.format(i)]
+            cb.addItem("날짜")
+            cb.addItem("숫자")
+            widget.setCellWidget(0, i, cb)
+
 
     # 진단 버튼 클릭 함수
     def pushBt_diagnosis_clicked(self, state, widget):
