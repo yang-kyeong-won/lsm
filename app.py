@@ -107,6 +107,10 @@ class MyWindow(QMainWindow, form_class):
                 elif cBox == "금액/수량/비율":    # "금액/수량/비율" 규칙 숫자 아닌 값 비허용
                     if not row_data.text().isdigit():
                         row_data.setBackground(QtGui.QColor(255, 0, 0))
+                elif cBox == "여부 > Y, N":     # "여부 > Y, N" 규칙 "Y", "N" 아닌 값 비허용
+                    print("여부")
+                    if not row_data.text() == "Y" or row_data.text() == "N":
+                        row_data.setBackground(QtGui.QColor(255, 0, 0))
 
 
     # 재시작 버튼 클릭 함수
