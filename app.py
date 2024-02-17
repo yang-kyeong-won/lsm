@@ -70,7 +70,7 @@ class MyWindow(QMainWindow, form_class):
                 widget.setItem(row_index+1, col_index, item)    # 첫 행 비워 놓고 데이터 채우기
         colcount = widget.columnCount()
         for i in range(0, colcount):
-            locals()['cb{}'.format(i)] = QComboBox(self)
+            locals()['cb{}'.format(i)] = QComboBox(self)    # 콤보박스 동적할당
             cb = locals()['cb{}'.format(i)]
             cb.addItem("문자열")
             cb.addItem("금액/수량/비율")
@@ -82,25 +82,26 @@ class MyWindow(QMainWindow, form_class):
             cb.addItem("사업자번호")
             widget.setCellWidget(0, i, cb)
 
-
     # 진단 버튼 클릭 함수
     def pushBt_diagnosis_clicked(self, state, widget):
-        # 열 이름 체크
-        isalpha = 0
         # 열 개수 추출
         colcount = widget.columnCount()
-        for i in range(0, colcount):
+        rowcount = widget.rowCount()
+
+        for i in range(0, colcount):            # 열 데이터 형태, 항목명 점검
             # 열 이름 하나씩 추출
-            data = widget.item(0, i).text()
-            if data.encode().isalpha():
-                # 열 이름 영어 -> isalpha 1 증가
-                isalpha = isalpha + 1
-            else:
-                continue
-        if isalpha == colcount:
-            print("열 이름 모두 영어")
-        else:
-            print("열 이름 한글 존재")
+            data = widget.item(1, i).text()
+            cbox = widget.cellWidget(0, i).currentText()
+            print(cbox)
+            #if data.encode().isalpha():
+            #    print("셀 색 변경")
+
+            for j in range(2, rowcount):
+                rowData = widget.item(j, i)
+                if rowData.text() == "-" or " ":
+                    rowData.setBackgroundColor(255, 0, 0)
+                if cbox == "문자열":
+                    print("문자열")
 
     # 재시작 버튼 클릭 함수
     def pushBt_restart_clicked(self, state, widget, announce, fileName, rows, columns):
