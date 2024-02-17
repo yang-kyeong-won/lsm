@@ -99,13 +99,16 @@ class MyWindow(QMainWindow, form_class):
 
             for j in range(2, row_count):
                 row_data = widget.item(j, i)
-                if row_data.text() == "-" or row_data.text() == " ":
+                if row_data.text() == "-" or row_data.text() == " ":    # 모든 열에서 "-", " " 값 비허용
                     print(row_data.text())
                     row_data.setBackground(QtGui.QColor(255, 0, 0))
-                if cBox == "문자열":
+                if not row_data.text() == "":   # 모든 열에서 공백 허용
                     continue
-                elif cBox == "금액/수량/비율":
-                    print("수량")
+                if cBox == "문자열":   # "문자열" 규칙 모든 값 허용
+                    continue
+                elif cBox == "금액/수량/비율":    # "금액/수량/비율" 규칙 숫자 아닌 값 비허용
+                    if not row_data.text().isdigit():
+                        row_data.setBackground(QtGui.QColor(255, 0, 0))
 
 
     # 재시작 버튼 클릭 함수
