@@ -91,16 +91,14 @@ class MyWindow(QMainWindow, form_class):
 
         for i in range(0, col_count):            # 열 데이터 형태, 항목명 점검
             # 열 이름 하나씩 추출
-            data = widget.item(1, i).text()
+            data = widget.item(1, i)
             cBox = widget.cellWidget(0, i).currentText()
-            print(cBox)
-            #if data.encode().isalpha():
-            #    print("셀 색 변경")
+            if data.text().encode().isalpha():
+                data.setBackground(QtGui.QColor(255, 0, 0))
 
             for j in range(2, row_count):
                 row_data = widget.item(j, i)
                 if row_data.text() == "-" or row_data.text() == " ":    # 모든 열에서 "-", " " 값 비허용
-                    print(row_data.text())
                     row_data.setBackground(QtGui.QColor(255, 0, 0))
                 if not row_data.text() == "":   # 모든 열에서 공백 허용
                     continue
