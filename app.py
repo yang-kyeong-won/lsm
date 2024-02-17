@@ -10,7 +10,6 @@ class MyWindow(QMainWindow, form_class):
     def __init__(self):
         super().__init__()
         self.setupUi(self)
-        self.combobox = QComboBox(self)
         # 파일선택 버튼 클릭
         self.pushBt_file_chc.clicked.connect(lambda state,
                                                     widget=self.tableWidget,
@@ -64,8 +63,6 @@ class MyWindow(QMainWindow, form_class):
         widget.setColumnCount(len(df.columns))
         # widget.setHorizontalHeaderLabels(df.columns)
         # widget.setVerticalHeaderLabels(df.index)
-        self.combobox.addItem("날짜")
-        self.combobox.addItem("숫자")
         for row_index, row in enumerate(df.index):
             for col_index, column in enumerate(df.columns):
                 value = df.loc[row][column]
@@ -75,8 +72,14 @@ class MyWindow(QMainWindow, form_class):
         for i in range(0, colcount):
             locals()['cb{}'.format(i)] = QComboBox(self)
             cb = locals()['cb{}'.format(i)]
-            cb.addItem("날짜")
-            cb.addItem("숫자")
+            cb.addItem("문자열")
+            cb.addItem("금액/수량/비율")
+            cb.addItem("여부 > Y, N")
+            cb.addItem("여부지정")
+            cb.addItem("날짜지정")
+            cb.addItem("전화번호")
+            cb.addItem("우편번호")
+            cb.addItem("사업자번호")
             widget.setCellWidget(0, i, cb)
 
 
