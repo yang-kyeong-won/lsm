@@ -1,8 +1,9 @@
 import sys
 import pandas as pd
 import ntpath
+
 from PyQt5.QtWidgets import *
-from PyQt5 import uic
+from PyQt5 import uic, QtGui
 
 form_class = uic.loadUiType('initial_screen.ui')[0]
 
@@ -85,23 +86,27 @@ class MyWindow(QMainWindow, form_class):
     # 진단 버튼 클릭 함수
     def pushBt_diagnosis_clicked(self, state, widget):
         # 열 개수 추출
-        colcount = widget.columnCount()
-        rowcount = widget.rowCount()
+        col_count = widget.columnCount()
+        row_count = widget.rowCount()
 
-        for i in range(0, colcount):            # 열 데이터 형태, 항목명 점검
+        for i in range(0, col_count):            # 열 데이터 형태, 항목명 점검
             # 열 이름 하나씩 추출
             data = widget.item(1, i).text()
-            cbox = widget.cellWidget(0, i).currentText()
-            print(cbox)
+            cBox = widget.cellWidget(0, i).currentText()
+            print(cBox)
             #if data.encode().isalpha():
             #    print("셀 색 변경")
 
-            for j in range(2, rowcount):
-                rowData = widget.item(j, i)
-                if rowData.text() == "-" or " ":
-                    rowData.setBackgroundColor(255, 0, 0)
-                if cbox == "문자열":
-                    print("문자열")
+            for j in range(2, row_count):
+                row_data = widget.item(j, i)
+                if row_data.text() == "-" or row_data.text() == " ":
+                    print(row_data.text())
+                    row_data.setBackground(QtGui.QColor(255, 0, 0))
+                if cBox == "문자열":
+                    continue
+                elif cBox == "금액/수량/비율":
+                    print("수량")
+
 
     # 재시작 버튼 클릭 함수
     def pushBt_restart_clicked(self, state, widget, announce, fileName, rows, columns):
