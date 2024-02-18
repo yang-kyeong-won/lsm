@@ -38,6 +38,8 @@ class MyWindow(QMainWindow, form_class):
                                                                                                              fileName,
                                                                                                              rows,
                                                                                                              columns))
+        self.pushBt_improve.clicked.connect(
+            lambda state, widget=self.tableWidget: self.pushBt_improve_clicked(state, widget))
 
     # 파일선택 버튼 클릭 함수
     def pushBt_file_chc_clicked(self, state, widget, announce, fileName, rows, columns):
@@ -99,14 +101,14 @@ class MyWindow(QMainWindow, form_class):
             for j in range(2, row_count):
                 row_data = widget.item(j, i)
                 if row_data.text() == "-" or row_data.text() == " ":    # 모든 열에서 "-", " " 값 비허용
-                    row_data.setBackground(QtGui.QColor(255, 0, 0))
+                    row_data.setBackground(QtGui.QColor("red"))
                 if not row_data.text() == "":   # 모든 열에서 공백 허용
                     continue
                 if cBox == "문자열":   # "문자열" 규칙 모든 값 허용
                     continue
                 elif cBox == "금액/수량/비율":    # "금액/수량/비율" 규칙 숫자 아닌 값 비허용
                     if not row_data.text().isdigit():
-                        row_data.setBackground(QtGui.QColor(255, 0, 0))
+                        row_data.setBackground(QtGui.QColor("red"))
                 elif cBox == "여부 > Y, N":     # "여부 > Y, N" 규칙 "Y", "N" 아닌 값 비허용
                     print("여부")
                     if not row_data.text() == "Y" or row_data.text() == "N":
@@ -122,6 +124,18 @@ class MyWindow(QMainWindow, form_class):
         fileName.clear()
         rows.clear()
         columns.clear()
+
+    # 정비 버튼 클릭 함수
+    def pushBt_improve_clicked(self, state, widget):
+        col_count = widget.columnCount()
+        row_count = widget.rowCount()
+        for i in range(0, col_count):
+            data = widget.item(1, i)
+            cBox = widget.cellWidget(0, i).currentText()
+            for j in range(2, row_count):
+                row_data = widget.item(j, i)
+                if str(row_data.background().color().getRgb()) == "(255, 0, 0, 255)":
+                    print(row_data)
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
