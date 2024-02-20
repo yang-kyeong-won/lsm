@@ -305,6 +305,22 @@ color: rgb(255, 255, 255);</string>
       <height>721</height>
      </rect>
     </property>
+    <property name="showGrid">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QTableWidget" name="e_tableWidget">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>470</y>
+      <width>1171</width>
+      <height>361</height>
+     </rect>
+    </property>
+    <property name="showGrid">
+     <bool>true</bool>
+    </property>
    </widget>
    <zorder>tableWidget</zorder>
    <zorder>txtBr_file_nm</zorder>
@@ -318,6 +334,7 @@ color: rgb(255, 255, 255);</string>
    <zorder>frame</zorder>
    <zorder>nochcFile_announce</zorder>
    <zorder>line</zorder>
+   <zorder>e_tableWidget</zorder>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
@@ -325,7 +342,7 @@ color: rgb(255, 255, 255);</string>
      <x>0</x>
      <y>0</y>
      <width>1201</width>
-     <height>22</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu">
