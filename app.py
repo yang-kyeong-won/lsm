@@ -6,6 +6,16 @@ from PyQt5.QtWidgets import *
 from PyQt5 import uic, QtGui, sip
 
 form_class = uic.loadUiType('initial_screen.ui')[0]
+form_date_setting = uic.loadUiType('date_setting.ui'[0])
+class DateWindow(QWidget, form_date_setting):
+    def __init__(self):
+        super(DateWindow.self).__init__()
+        self.initUI()
+        self.show()     # 날짜선택창 실행
+
+    def initUI(self):
+        self.setupUi(self)
+        self.bt_check_complete.clicked.connect(self.bt_check_complete)
 
 class MyWindow(QMainWindow, form_class):
     def __init__(self):
@@ -99,6 +109,10 @@ class MyWindow(QMainWindow, form_class):
             cb.addItem("우편번호")
             cb.addItem("사업자번호")
             widget.setCellWidget(0, i, cb)
+
+    def chc_cbItem_date(self):
+        self.date_setting = DateWindow()
+        self.date_setting.exec()
 
     # 진단 버튼 클릭 함수
     def pushBt_diagnosis_clicked(self, state, widget, e_widget, target):
