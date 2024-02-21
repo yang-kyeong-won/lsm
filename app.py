@@ -105,24 +105,28 @@ class MyWindow(QMainWindow, form_class):
         # 열 개수 추출
         col_count = widget.columnCount()
         row_count = widget.rowCount()
-        for i in range(0, col_count):            # 열 데이터 형태, 항목명 점검
+        for i in range(0, col_count):     # 열 데이터 형태, 항목명 점검
             # 열 이름 하나씩 추출
             data = widget.item(1, i)
             cBox = widget.cellWidget(0, i).currentText()
-            if data.text().encode().isalpha():
-                data.setBackground(QtGui.QColor(255, 0, 0))
+            if data.text().encode().isalpha():      # 항목명이 영어로만 이루어져 있는지 판별
+                data.setBackground(QtGui.QColor(255, 102, 102))     # 해당 셀 배경색 주황색으로 변경
             for j in range(2, row_count):
                 row_data = widget.item(j, i)
                 if cBox == "금액/수량/비율":    # "금액/수량/비율" 규칙 숫자 아닌 값 비허용
                     if not row_data.text().isdigit():
-                        row_data.setBackground(QtGui.QColor("red"))
+                        row_data.setBackground(QtGui.QColor(255, 102, 102))
+                    else:
+                        row_data.setBackground(QtGui.QColor("white"))
                 if cBox == "여부 > Y, N":     # "여부 > Y, N" 규칙 "Y", "N" 아닌 값 비허용
                     if not row_data.text() == "Y" and not row_data.text() == "N":
-                        row_data.setBackground(QtGui.QColor("red"))
+                        row_data.setBackground(QtGui.QColor(255, 102, 102))
+                    else:
+                        row_data.setBackground(QtGui.QColor("white"))
                 if row_data.text() == "":   # 모든 열에서 공백 허용
                     row_data.setBackground(QtGui.QColor("white"))
-                if row_data.text() == "-" or row_data.text() == " ":    # 모든 열에서 "-", " " 값 비허용
-                    row_data.setBackground(QtGui.QColor("red"))
+                if row_data.text() == "-" or row_data.text().isspace():    # 모든 열에서 "-", " " 값 비허용
+                    row_data.setBackground(QtGui.QColor(255, 102, 102))
 
     # 재시작 버튼 클릭 함수
     def pushBt_restart_clicked(self, state, widget, announce, fileName, rows, columns, e_widget):
@@ -133,21 +137,22 @@ class MyWindow(QMainWindow, form_class):
         fileName.clear()
         rows.clear()
         columns.clear()
-        widget.setFixedSize(1171, 721)
-        e_widget.hide()
+        widget.setFixedSize(1171, 721)  # TableWidget 사이즈 원래대로
+        e_widget.hide() # 기존 비교 위한 TableWidget 숨김처리
 
     # 정비 버튼 클릭 함수
     def pushBt_improve_clicked(self, state, widget):
         col_count = widget.columnCount()
         row_count = widget.rowCount()
         for i in range(0, col_count):
-            data = widget.item(1, i)
-            cBox = widget.cellWidget(0, i).currentText()
+            # data = widget.item(1, i)
+            # cBox = widget.cellWidget(0, i).currentText()
             for j in range(2, row_count):
                 row_data = widget.item(j, i)
-                if row_data.background().color().getRgb() == QtGui.QColor("red").getRgb():
-                    if row_data.text() == "-" or row_data.text() == " ":
-                        widget.setItem(j, i, QTableWidgetItem(""))
+                if row_data.background().color().getRgb() == QtGui.QColor(255, 102, 102).getRgb():  # 배경색 = 주황색 판별
+                    if row_data.text() == "-" or row_data.text() == " ":    # 해당 셀 값이 스페이스 바 또는 - 인지 판별
+                        widget.setItem(j, i, QTableWidgetItem(""))          # 해당 셀 값 공백으로 변경
+                        widget.item(j, i).setBackground(QtGui.QColor(204, 255, 255))        # 해당 셀 배경색 푸른색으로 변경
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
