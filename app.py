@@ -1,7 +1,7 @@
 import sys
 import pandas as pd
 import ntpath
-
+import numpy
 from PyQt5.QtWidgets import *
 from PyQt5 import uic, QtGui, sip
 
@@ -11,7 +11,8 @@ class MyWindow(QMainWindow, form_class):
     def __init__(self):
         super().__init__()
         self.setupUi(self)
-        self.e_tableWidget.hide()
+        self.e_tableWidget.hide()   # 비교 위한 백업 테이블
+        self.target = list()    # 정비 대상 리스트
         # 파일선택 버튼 클릭
         self.pushBt_file_chc.clicked.connect(lambda state,
                                                     widget=self.tableWidget,
@@ -28,7 +29,7 @@ class MyWindow(QMainWindow, form_class):
                                                                                                             e_widget))
         # 진단 버튼 클릭
         self.pushBt_diagnosis.clicked.connect(
-            lambda state, widget=self.tableWidget, e_widget=self.e_tableWidget: self.pushBt_diagnosis_clicked(state, widget, e_widget))
+            lambda state, widget=self.tableWidget, e_widget=self.e_tableWidget, target = self.target: self.pushBt_diagnosis_clicked(state, widget, e_widget, target))
 
         self.pushBt_restart.clicked.connect(lambda state,
                                                     widget=self.tableWidget,
@@ -44,7 +45,7 @@ class MyWindow(QMainWindow, form_class):
                                                                                                              columns,
                                                                                                              e_widget))
         self.pushBt_improve.clicked.connect(
-            lambda state, widget=self.tableWidget: self.pushBt_improve_clicked(state, widget))
+            lambda state, widget=self.tableWidget,target = self.target: self.pushBt_improve_clicked(state, widget, target))
 
     # 파일선택 버튼 클릭 함수
     def pushBt_file_chc_clicked(self, state, widget, announce, fileName, rows, columns, e_widget):
@@ -87,6 +88,7 @@ class MyWindow(QMainWindow, form_class):
         colcount = widget.columnCount()
         for i in range(0, colcount):
             locals()['cb{}'.format(i)] = QComboBox(self)    # 콤보박스 동적할당
+
             cb = locals()['cb{}'.format(i)]
             cb.addItem("문자열")
             cb.addItem("금액/수량/비율")
@@ -99,34 +101,49 @@ class MyWindow(QMainWindow, form_class):
             widget.setCellWidget(0, i, cb)
 
     # 진단 버튼 클릭 함수
-    def pushBt_diagnosis_clicked(self, state, widget, e_widget):
+    def pushBt_diagnosis_clicked(self, state, widget, e_widget, target):
         widget.setFixedSize(1171,360)
         e_widget.show()
         # 열 개수 추출
-        col_count = widget.columnCount()
-        row_count = widget.rowCount()
+        col_count = e_widget.columnCount()
+        row_count = e_widget.rowCount()
         for i in range(0, col_count):     # 열 데이터 형태, 항목명 점검
             # 열 이름 하나씩 추출
             data = widget.item(1, i)
             cBox = widget.cellWidget(0, i).currentText()
             if data.text().encode().isalpha():      # 항목명이 영어로만 이루어져 있는지 판별
-                data.setBackground(QtGui.QColor(255, 102, 102))     # 해당 셀 배경색 주황색으로 변경
+                e_widget.item(1, i).setBackground(QtGui.QColor(255, 102, 102))     # 해당 셀 배경색 주황색으로 변경
             for j in range(2, row_count):
                 row_data = widget.item(j, i)
+                target_data = [j, i]
                 if cBox == "금액/수량/비율":    # "금액/수량/비율" 규칙 숫자 아닌 값 비허용
                     if not row_data.text().isdigit():
-                        row_data.setBackground(QtGui.QColor(255, 102, 102))
+                        e_widget.item(j, i).setBackground(QtGui.QColor(255, 102, 102))
+                        if target_data not in target:
+                            target.append(target_data)
                     else:
-                        row_data.setBackground(QtGui.QColor("white"))
+                        e_widget.item(j, i).setBackground(QtGui.QColor("white"))
                 if cBox == "여부 > Y, N":     # "여부 > Y, N" 규칙 "Y", "N" 아닌 값 비허용
                     if not row_data.text() == "Y" and not row_data.text() == "N":
-                        row_data.setBackground(QtGui.QColor(255, 102, 102))
+                        e_widget.item(j, i).setBackground(QtGui.QColor(255, 102, 102))
+                        if target_data not in target:
+                            target.append(target_data)
                     else:
-                        row_data.setBackground(QtGui.QColor("white"))
+                        e_widget.item(j, i).setBackground(QtGui.QColor("white"))
+                        if target_data in target:
+                            target.remove(target_data)
                 if row_data.text() == "":   # 모든 열에서 공백 허용
-                    row_data.setBackground(QtGui.QColor("white"))
+                    e_widget.item(j, i).setBackground(QtGui.QColor("white"))
+                    if target_data in target:
+                        target.remove(target_data)
                 if row_data.text() == "-" or row_data.text().isspace():    # 모든 열에서 "-", " " 값 비허용
-                    row_data.setBackground(QtGui.QColor(255, 102, 102))
+                    e_widget.item(j, i).setBackground(QtGui.QColor(255, 102, 102))
+                    if target_data not in target:
+                        target.append(target_data)
+        index = 0
+        for z in target:    # 테스트용 출력
+            print(str(index) + "번째 열 : " + str(z))
+            index = index + 1
 
     # 재시작 버튼 클릭 함수
     def pushBt_restart_clicked(self, state, widget, announce, fileName, rows, columns, e_widget):
@@ -141,18 +158,16 @@ class MyWindow(QMainWindow, form_class):
         e_widget.hide()     # 기존 비교 위한 TableWidget 숨김처리
 
     # 정비 버튼 클릭 함수
-    def pushBt_improve_clicked(self, state, widget):
-        col_count = widget.columnCount()
-        row_count = widget.rowCount()
-        for i in range(0, col_count):
-            # data = widget.item(1, i)
-            # cBox = widget.cellWidget(0, i).currentText()
-            for j in range(2, row_count):
-                row_data = widget.item(j, i)
-                if row_data.background().color().getRgb() == QtGui.QColor(255, 102, 102).getRgb():  # 배경색 = 주황색 판별
-                    if row_data.text() == "-" or row_data.text() == " ":    # 해당 셀 값이 스페이스 바 또는 - 인지 판별
-                        widget.setItem(j, i, QTableWidgetItem(""))          # 해당 셀 값 공백으로 변경
-                        widget.item(j, i).setBackground(QtGui.QColor(204, 255, 255))        # 해당 셀 배경색 푸른색으로 변경
+    def pushBt_improve_clicked(self, state, widget, target):
+        result = list()
+        for target_data in target:
+            x = target_data[0]      # 정비 대상 행 인덱스
+            y = target_data[1]      # 정비 대상 열 인덱스
+            if widget.item(x, y).text() == "-" or widget.item(x, y).text().isspace():  # 해당 셀 값이 스페이스 바 또는 - 인지 판별
+                widget.setItem(x, y, QTableWidgetItem(""))  # 해당 셀 값 공백으로 변경
+                widget.item(x, y).setBackground(QtGui.QColor(204, 255, 255))  # 해당 셀 배경색 푸른색으로 변경
+                result.append(target_data)
+        print(result)
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
