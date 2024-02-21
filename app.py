@@ -68,18 +68,18 @@ class MyWindow(QMainWindow, form_class):
 
     # TableWidget 구성 함수
     def create_table_widget(self, widget, df, e_widget):
-        widget.setRowCount(len(df.index)+1)                     # 첫 행에 Combobox 넣기 위해 행 갯수 1 늘림
+        widget.setRowCount(len(df.index)+1)     # 첫 행에 Combobox 넣기 위해 행 갯수 1 늘림
         widget.setColumnCount(len(df.columns))
-        e_widget.setRowCount(len(df.index) + 1)  # 첫 행에 Combobox 넣기 위해 행 갯수 1 늘림
+        e_widget.setRowCount(len(df.index) + 1)      # 첫 행에 Combobox 넣기 위해 행 갯수 1 늘림
         e_widget.setColumnCount(len(df.columns))
         # widget.setHorizontalHeaderLabels(df.columns)
         # widget.setVerticalHeaderLabels(df.index)
-        for row_index, row in enumerate(df.index):
+        for row_index, row in enumerate(df.index):      # 정비 진행할 TableWidget 생성 -> widget
             for col_index, column in enumerate(df.columns):
                 value = df.loc[row][column]
                 item = QTableWidgetItem(str(value))
                 widget.setItem(row_index+1, col_index, item)    # 첫 행 비워 놓고 데이터 채우기
-        for row_index, row in enumerate(df.index):
+        for row_index, row in enumerate(df.index):      # 비교 위한 백업용 TablWidget 생성 -> e_widget
             for col_index, column in enumerate(df.columns):
                 value = df.loc[row][column]
                 item = QTableWidgetItem(str(value))
@@ -138,7 +138,7 @@ class MyWindow(QMainWindow, form_class):
         rows.clear()
         columns.clear()
         widget.setFixedSize(1171, 721)  # TableWidget 사이즈 원래대로
-        e_widget.hide() # 기존 비교 위한 TableWidget 숨김처리
+        e_widget.hide()     # 기존 비교 위한 TableWidget 숨김처리
 
     # 정비 버튼 클릭 함수
     def pushBt_improve_clicked(self, state, widget):
