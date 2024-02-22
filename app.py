@@ -1,22 +1,11 @@
 import sys
 import pandas as pd
 import ntpath
-import numpy
+import re
 from PyQt5.QtWidgets import *
 from PyQt5 import uic, QtGui, sip
 
 form_class = uic.loadUiType('initial_screen.ui')[0]
-form_date_setting = uic.loadUiType('date_setting.ui'[0])
-class DateWindow(QWidget, form_date_setting):
-    def __init__(self):
-        super(DateWindow.self).__init__()
-        self.initUI()
-        self.show()     # 날짜선택창 실행
-
-    def initUI(self):
-        self.setupUi(self)
-        self.bt_check_complete.clicked.connect(self.bt_check_complete)
-
 class MyWindow(QMainWindow, form_class):
     def __init__(self):
         super().__init__()
@@ -55,7 +44,7 @@ class MyWindow(QMainWindow, form_class):
                                                                                                              columns,
                                                                                                              e_widget))
         self.pushBt_improve.clicked.connect(
-            lambda state, widget=self.tableWidget,target = self.target: self.pushBt_improve_clicked(state, widget, target))
+            lambda state, widget=self.tableWidget, target = self.target, e_widget=self.e_tableWidget: self.pushBt_improve_clicked(state, widget, target, e_widget))
 
     # 파일선택 버튼 클릭 함수
     def pushBt_file_chc_clicked(self, state, widget, announce, fileName, rows, columns, e_widget):
@@ -110,10 +99,6 @@ class MyWindow(QMainWindow, form_class):
             cb.addItem("사업자번호")
             widget.setCellWidget(0, i, cb)
 
-    def chc_cbItem_date(self):
-        self.date_setting = DateWindow()
-        self.date_setting.exec()
-
     # 진단 버튼 클릭 함수
     def pushBt_diagnosis_clicked(self, state, widget, e_widget, target):
         widget.setFixedSize(1171,360)
@@ -130,14 +115,24 @@ class MyWindow(QMainWindow, form_class):
             for j in range(2, row_count):
                 row_data = widget.item(j, i)
                 target_data = [j, i]
-                if cBox == "금액/수량/비율":    # "금액/수량/비율" 규칙 숫자 아닌 값 비허용
+                if row_data.text() == "":   # 모든 열에서 공백 허용
+                    e_widget.item(j, i).setBackground(QtGui.QColor("white"))
+                    if target_data in target:
+                        target.remove(target_data)
+                elif row_data.text() == "-" or row_data.text().isspace():    # 모든 열에서 "-", " " 값 비허용
+                    e_widget.item(j, i).setBackground(QtGui.QColor(255, 102, 102))
+                    if target_data not in target:
+                        target.append(target_data)
+                elif cBox == "금액/수량/비율":    # "금액/수량/비율" 규칙 숫자 아닌 값 비허용
                     if not row_data.text().isdigit():
                         e_widget.item(j, i).setBackground(QtGui.QColor(255, 102, 102))
                         if target_data not in target:
                             target.append(target_data)
                     else:
                         e_widget.item(j, i).setBackground(QtGui.QColor("white"))
-                if cBox == "여부 > Y, N":     # "여부 > Y, N" 규칙 "Y", "N" 아닌 값 비허용
+                        if target_data in target:
+                            target.remove(target_data)
+                elif cBox == "여부 > Y, N":     # "여부 > Y, N" 규칙 "Y", "N" 아닌 값 비허용
                     if not row_data.text() == "Y" and not row_data.text() == "N":
                         e_widget.item(j, i).setBackground(QtGui.QColor(255, 102, 102))
                         if target_data not in target:
@@ -146,14 +141,18 @@ class MyWindow(QMainWindow, form_class):
                         e_widget.item(j, i).setBackground(QtGui.QColor("white"))
                         if target_data in target:
                             target.remove(target_data)
-                if row_data.text() == "":   # 모든 열에서 공백 허용
-                    e_widget.item(j, i).setBackground(QtGui.QColor("white"))
-                    if target_data in target:
-                        target.remove(target_data)
-                if row_data.text() == "-" or row_data.text().isspace():    # 모든 열에서 "-", " " 값 비허용
-                    e_widget.item(j, i).setBackground(QtGui.QColor(255, 102, 102))
-                    if target_data not in target:
-                        target.append(target_data)
+                elif cBox == "전화번호":
+                    if re.compile(r"\d{3}-\d{4}-\d{4}").match(row_data.text()) or re.compile(r"\d{3}-\d{3}-\d{4}").match(row_data.text()) or re.compile(r"\d{2}-\d{3}-\d{4}").match(row_data.text()) or re.compile(r"\d{2}-\d{4}-\d{4}").match(row_data.text()) or re.compile(r"\d{4}-\d{4}").match(row_data.text()):
+                        e_widget.item(j, i).setBackground(QtGui.QColor("white"))
+                        if target_data in target:
+                            target.remove(target_data)
+                    else:
+                        e_widget.item(j, i).setBackground(QtGui.QColor(255, 102, 102))
+                        if target_data not in target:
+                            target.append(target_data)
+
+
+
         index = 0
         for z in target:    # 테스트용 출력
             print(str(index) + "번째 열 : " + str(z))
@@ -172,15 +171,68 @@ class MyWindow(QMainWindow, form_class):
         e_widget.hide()     # 기존 비교 위한 TableWidget 숨김처리
 
     # 정비 버튼 클릭 함수
-    def pushBt_improve_clicked(self, state, widget, target):
+    def pushBt_improve_clicked(self, state, widget, target, e_widget):
         result = list()
         for target_data in target:
             x = target_data[0]      # 정비 대상 행 인덱스
             y = target_data[1]      # 정비 대상 열 인덱스
+            cBox = widget.cellWidget(0, y).currentText()
+            # 공통 부분
             if widget.item(x, y).text() == "-" or widget.item(x, y).text().isspace():  # 해당 셀 값이 스페이스 바 또는 - 인지 판별
                 widget.setItem(x, y, QTableWidgetItem(""))  # 해당 셀 값 공백으로 변경
                 widget.item(x, y).setBackground(QtGui.QColor(204, 255, 255))  # 해당 셀 배경색 푸른색으로 변경
                 result.append(target_data)
+            elif cBox == "금액/수량/비율":    # "금액/수량/비율" 규칙 숫자 아닌 값 비허용
+                widget.setItem(x, y, QTableWidgetItem(re.sub(r'[^0-9]', '', widget.item(x, y).text())))
+                widget.item(x, y).setBackground(QtGui.QColor(204, 255, 255))  # 해당 셀 배경색 푸른색으로 변경
+                result.append(target_data)
+            elif cBox == "여부 > Y, N":  # "여부 > Y, N" 규칙 "Y", "N" 아닌 값 비허용
+                if widget.item(x, y).text() == "y":
+                    widget.setItem(x, y, QTableWidgetItem("Y"))
+                    widget.item(x, y).setBackground(QtGui.QColor(204, 255, 255))  # 해당 셀 배경색 푸른색으로 변경
+                    result.append(target_data)
+                elif widget.item(x, y).text() == "n":
+                    widget.setItem(x, y, QTableWidgetItem("N"))
+                    widget.item(x, y).setBackground(QtGui.QColor(204, 255, 255))  # 해당 셀 배경색 푸른색으로 변경
+                    result.append(target_data)
+                else:
+                    widget.item(x, y).setBackground(QtGui.QColor(255, 102, 102))
+            elif cBox == "전화번호":
+                number = re.sub(r'[^0-9]', '', widget.item(x, y).text())
+                phone_no = ""
+                if len(number) == 8:
+                    for i in range(len(number)):
+                        phone_no += number[i]
+                        if i == 3:
+                            phone_no += "-"
+                elif len(number) == 9:
+                    for i in range(len(number)):
+                        phone_no += number[i]
+                        if i == 1 or i == 4:
+                            phone_no += "-"
+                elif len(number) == 10:
+                    if number[0] == "0" and number[1] == "2":
+                        for i in range(len(number)):
+                            phone_no += number[i]
+                            if i == 1 or i == 5:
+                                phone_no += "-"
+                    else:
+                        for i in range(len(number)):
+                            phone_no += number[i]
+                            if i == 2 or i == 5:
+                                phone_no += "-"
+                elif len(number) == 11:
+                    for i in range(len(number)):
+                        phone_no += number[i]
+                        if i == 2 or i == 6:
+                            phone_no += "-"
+                print(phone_no)
+                if re.compile(r"\d{3}-\d{4}-\d{4}").match(phone_no) or re.compile(r"\d{3}-\d{3}-\d{4}").match(phone_no) or re.compile(r"\d{2}-\d{3}-\d{4}").match(phone_no) or re.compile(r"\d{2}-\d{4}-\d{4}").match(phone_no) or re.compile(r"\d{4}-\d{4}").match(phone_no):
+                    widget.setItem(x, y, QTableWidgetItem(phone_no))
+                    widget.item(x, y).setBackground(QtGui.QColor(204, 255, 255))  # 해당 셀 배경색 푸른색으로 변경
+                    result.append(target_data)
+                else:
+                    widget.item(x, y).setBackground(QtGui.QColor(255, 102, 102))
         print(result)
 
 if __name__ == '__main__':
