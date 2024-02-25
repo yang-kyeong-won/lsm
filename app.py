@@ -1,3 +1,4 @@
+import datetime
 import sys
 import pandas as pd
 import ntpath
@@ -92,12 +93,38 @@ class MyWindow(QMainWindow, form_class):
             cb.addItem("문자열")
             cb.addItem("금액/수량/비율")
             cb.addItem("여부 > Y, N")
-            cb.addItem("여부지정")
-            cb.addItem("날짜지정")
+            cb.addItem("여부 > 남, 여")
+            cb.addItem("날짜 > YYYY-MM-DD HH24:MI:SS")
+            cb.addItem("날짜 > YYYY-MM-DD HH24:MI")
+            cb.addItem("날짜 > YYYY-MM-DD HH24")
+            cb.addItem("날짜 > YYYY-MM-DD")
+            cb.addItem("날짜 > YYYY-MM")
+            cb.addItem("날짜 > YYYY")
+            cb.addItem("날짜 > MM")
+            cb.addItem("날짜 > DD")
+            cb.addItem("날짜 > MM-DD HH24:MI:SS")
+            cb.addItem("날짜 > MM-DD HH24:MI")
+            cb.addItem("날짜 > MM-DD")
+            cb.addItem("날짜 > HH24:MI:SS")
+            cb.addItem("날짜 > MI:SS")
+            cb.addItem("날짜 > HH24:MI")
+            cb.addItem("날짜 > HH24")
+            cb.addItem("날짜 > MI")
+            cb.addItem("날짜 > SS")
             cb.addItem("전화번호")
             cb.addItem("우편번호")
             cb.addItem("사업자번호")
             widget.setCellWidget(0, i, cb)
+    def setting_red(self, e_widget, j, i, target_data, target):       # 진단 시 오류 값 다홍색으로 변경
+        e_widget.item(j, i).setBackground(QtGui.QColor(255, 102, 102))
+        if target_data not in target:
+            target.append(target_data)
+    def setting_white(self, e_widget, j, i, target_data, target):       # 재진단 시 정상 값 흰색으로 변경
+        e_widget.item(j, i).setBackground(QtGui.QColor("white"))
+        if target_data in target:
+            target.remove(target_data)
+    def setting_blue(self, widget, x, y):  # 정비 시 정비 완료된 셀 푸른색으로 변경
+        widget.item(x, y).setBackground(QtGui.QColor(204, 255, 255))  # 해당 셀 배경색 푸른색으로 변경
 
     # 진단 버튼 클릭 함수
     def pushBt_diagnosis_clicked(self, state, widget, e_widget, target):
@@ -116,40 +143,125 @@ class MyWindow(QMainWindow, form_class):
                 row_data = widget.item(j, i)
                 target_data = [j, i]
                 if row_data.text() == "":   # 모든 열에서 공백 허용
-                    e_widget.item(j, i).setBackground(QtGui.QColor("white"))
-                    if target_data in target:
-                        target.remove(target_data)
+                    self.setting_white(e_widget, j, i, target_data, target)
                 elif row_data.text() == "-" or row_data.text().isspace():    # 모든 열에서 "-", " " 값 비허용
-                    e_widget.item(j, i).setBackground(QtGui.QColor(255, 102, 102))
-                    if target_data not in target:
-                        target.append(target_data)
+                    self.setting_red(e_widget, j, i, target_data, target)
                 elif cBox == "금액/수량/비율":    # "금액/수량/비율" 규칙 숫자 아닌 값 비허용
                     if not row_data.text().isdigit():
-                        e_widget.item(j, i).setBackground(QtGui.QColor(255, 102, 102))
-                        if target_data not in target:
-                            target.append(target_data)
+                        self.setting_red(e_widget, j, i, target_data, target)
                     else:
-                        e_widget.item(j, i).setBackground(QtGui.QColor("white"))
-                        if target_data in target:
-                            target.remove(target_data)
+                        self.setting_white(e_widget, j, i, target_data, target)
                 elif cBox == "여부 > Y, N":     # "여부 > Y, N" 규칙 "Y", "N" 아닌 값 비허용
                     if not row_data.text() == "Y" and not row_data.text() == "N":
-                        e_widget.item(j, i).setBackground(QtGui.QColor(255, 102, 102))
-                        if target_data not in target:
-                            target.append(target_data)
+                        self.setting_red(e_widget, j, i, target_data, target)
                     else:
-                        e_widget.item(j, i).setBackground(QtGui.QColor("white"))
-                        if target_data in target:
-                            target.remove(target_data)
+                        self.setting_white(e_widget, j, i, target_data, target)
+                elif cBox == "여부 > 남, 여":     # "남", "여" 아닌 값 비허용
+                    if not row_data.text() == "남" and not row_data.text() == "여":
+                        self.setting_red(e_widget, j, i, target_data, target)
+                    else:
+                        self.setting_white(e_widget, j, i, target_data, target)
+                elif cBox == "날짜 > YYYY-MM-DD HH24:MI:SS":      # 해당 날짜 형식이 아닌 값 비허용
+                    try:
+                        datetime.datetime.strptime(row_data.text(), "%Y-%m-%d %H:%M:%S")
+                        self.setting_white(e_widget, j, i, target_data, target)
+                    except ValueError:
+                        self.setting_red(e_widget, j, i, target_data, target)
+                elif cBox == "날짜 > YYYY-MM-DD HH24:MI":
+                    try:
+                        datetime.datetime.strptime(row_data.text(), "%Y-%m-%d %H:%M")
+                        self.setting_white(e_widget, j, i, target_data, target)
+                    except ValueError:
+                        self.setting_red(e_widget, j, i, target_data, target)
+                elif cBox == "날짜 > YYYY-MM-DD HH24":
+                    try:
+                        datetime.datetime.strptime(row_data.text(), "%Y-%m-%d %H")
+                        self.setting_white(e_widget, j, i, target_data, target)
+                    except ValueError:
+                        self.setting_red(e_widget, j, i, target_data, target)
+                elif cBox == "날짜 > YYYY-MM-DD":
+                    try:
+                        datetime.datetime.strptime(row_data.text(), "%Y-%m-%d")
+                        self.setting_white(e_widget, j, i, target_data, target)
+                    except ValueError:
+                        self.setting_red(e_widget, j, i, target_data, target)
+                elif cBox == "날짜 > YYYY-MM":
+                    try:
+                        datetime.datetime.strptime(row_data.text(), "%Y-%m")
+                        self.setting_white(e_widget, j, i, target_data, target)
+                    except ValueError:
+                        self.setting_red(e_widget, j, i, target_data, target)
+                elif cBox == "날짜 > YYYY":
+                    try:
+                        datetime.datetime.strptime(row_data.text(), "%Y")
+                        self.setting_white(e_widget, j, i, target_data, target)
+                    except ValueError:
+                        self.setting_red(e_widget, j, i, target_data, target)
+                elif cBox == "날짜 > MM":
+                    try:
+                        datetime.datetime.strptime(row_data.text(), "%m")
+                        self.setting_white(e_widget, j, i, target_data, target)
+                    except ValueError:
+                        self.setting_red(e_widget, j, i, target_data, target)
+                elif cBox == "날짜 > DD":
+                    try:
+                        datetime.datetime.strptime(row_data.text(), "%d")
+                        self.setting_white(e_widget, j, i, target_data, target)
+                    except ValueError:
+                        self.setting_red(e_widget, j, i, target_data, target)
+                elif cBox == "날짜 > MM-DD HH24:MI:SS":
+                    try:
+                        datetime.datetime.strptime(row_data.text(), "%m-%d %H:%M:%S")
+                        self.setting_white(e_widget, j, i, target_data, target)
+                    except ValueError:
+                        self.setting_red(e_widget, j, i, target_data, target)
+                elif cBox == "날짜 > MM-DD HH24:MI":
+                    try:
+                        datetime.datetime.strptime(row_data.text(), "%m-%d %H:%M")
+                        self.setting_white(e_widget, j, i, target_data, target)
+                    except ValueError:
+                        self.setting_red(e_widget, j, i, target_data, target)
+                elif cBox == "날짜 > HH24:MI:SS":
+                    try:
+                        datetime.datetime.strptime(row_data.text(), "%H:%M:%S")
+                        self.setting_white(e_widget, j, i, target_data, target)
+                    except ValueError:
+                        self.setting_red(e_widget, j, i, target_data, target)
+                elif cBox == "날짜 > MI:SS":
+                    try:
+                        datetime.datetime.strptime(row_data.text(), "%M:%S")
+                        self.setting_white(e_widget, j, i, target_data, target)
+                    except ValueError:
+                        self.setting_red(e_widget, j, i, target_data, target)
+                elif cBox == "날짜 > HH24:MI":
+                    try:
+                        datetime.datetime.strptime(row_data.text(), "%H:%M")
+                        self.setting_white(e_widget, j, i, target_data, target)
+                    except ValueError:
+                        self.setting_red(e_widget, j, i, target_data, target)
+                elif cBox == "날짜 > HH24":
+                    try:
+                        datetime.datetime.strptime(row_data.text(), "%H")
+                        self.setting_white(e_widget, j, i, target_data, target)
+                    except ValueError:
+                        self.setting_red(e_widget, j, i, target_data, target)
+                elif cBox == "날짜 > MI":
+                    try:
+                        datetime.datetime.strptime(row_data.text(), "%M")
+                        self.setting_white(e_widget, j, i, target_data, target)
+                    except ValueError:
+                        self.setting_red(e_widget, j, i, target_data, target)
+                elif cBox == "날짜 > SS":
+                    try:
+                        datetime.datetime.strptime(row_data.text(), "%S")
+                        self.setting_white(e_widget, j, i, target_data, target)
+                    except ValueError:
+                        self.setting_red(e_widget, j, i, target_data, target)
                 elif cBox == "전화번호":
                     if re.compile(r"\d{3}-\d{4}-\d{4}").match(row_data.text()) or re.compile(r"\d{3}-\d{3}-\d{4}").match(row_data.text()) or re.compile(r"\d{2}-\d{3}-\d{4}").match(row_data.text()) or re.compile(r"\d{2}-\d{4}-\d{4}").match(row_data.text()) or re.compile(r"\d{4}-\d{4}").match(row_data.text()):
-                        e_widget.item(j, i).setBackground(QtGui.QColor("white"))
-                        if target_data in target:
-                            target.remove(target_data)
+                        self.setting_white(e_widget, j, i, target_data, target)
                     else:
-                        e_widget.item(j, i).setBackground(QtGui.QColor(255, 102, 102))
-                        if target_data not in target:
-                            target.append(target_data)
+                        self.setting_red(e_widget, j, i, target_data, target)
 
 
 
@@ -180,20 +292,20 @@ class MyWindow(QMainWindow, form_class):
             # 공통 부분
             if widget.item(x, y).text() == "-" or widget.item(x, y).text().isspace():  # 해당 셀 값이 스페이스 바 또는 - 인지 판별
                 widget.setItem(x, y, QTableWidgetItem(""))  # 해당 셀 값 공백으로 변경
-                widget.item(x, y).setBackground(QtGui.QColor(204, 255, 255))  # 해당 셀 배경색 푸른색으로 변경
+                self.setting_blue(widget, x, y)
                 result.append(target_data)
             elif cBox == "금액/수량/비율":    # "금액/수량/비율" 규칙 숫자 아닌 값 비허용
                 widget.setItem(x, y, QTableWidgetItem(re.sub(r'[^0-9]', '', widget.item(x, y).text())))
-                widget.item(x, y).setBackground(QtGui.QColor(204, 255, 255))  # 해당 셀 배경색 푸른색으로 변경
+                self.setting_blue(widget, x, y)
                 result.append(target_data)
             elif cBox == "여부 > Y, N":  # "여부 > Y, N" 규칙 "Y", "N" 아닌 값 비허용
                 if widget.item(x, y).text() == "y":
                     widget.setItem(x, y, QTableWidgetItem("Y"))
-                    widget.item(x, y).setBackground(QtGui.QColor(204, 255, 255))  # 해당 셀 배경색 푸른색으로 변경
+                    self.setting_blue(widget, x, y)
                     result.append(target_data)
                 elif widget.item(x, y).text() == "n":
                     widget.setItem(x, y, QTableWidgetItem("N"))
-                    widget.item(x, y).setBackground(QtGui.QColor(204, 255, 255))  # 해당 셀 배경색 푸른색으로 변경
+                    self.setting_blue(widget, x, y)
                     result.append(target_data)
                 else:
                     widget.item(x, y).setBackground(QtGui.QColor(255, 102, 102))
@@ -229,7 +341,7 @@ class MyWindow(QMainWindow, form_class):
                 print(phone_no)
                 if re.compile(r"\d{3}-\d{4}-\d{4}").match(phone_no) or re.compile(r"\d{3}-\d{3}-\d{4}").match(phone_no) or re.compile(r"\d{2}-\d{3}-\d{4}").match(phone_no) or re.compile(r"\d{2}-\d{4}-\d{4}").match(phone_no) or re.compile(r"\d{4}-\d{4}").match(phone_no):
                     widget.setItem(x, y, QTableWidgetItem(phone_no))
-                    widget.item(x, y).setBackground(QtGui.QColor(204, 255, 255))  # 해당 셀 배경색 푸른색으로 변경
+                    self.setting_blue(widget, x, y)
                     result.append(target_data)
                 else:
                     widget.item(x, y).setBackground(QtGui.QColor(255, 102, 102))
