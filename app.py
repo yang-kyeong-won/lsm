@@ -3,7 +3,9 @@ import sys
 import pandas as pd
 import ntpath
 import re
+
 from PyQt5.QtWidgets import *
+from PyQt5.QtCore import Qt
 from PyQt5 import uic, QtGui, sip
 
 form_class = uic.loadUiType('initial_screen.ui')[0]
@@ -71,8 +73,10 @@ class MyWindow(QMainWindow, form_class):
     def create_table_widget(self, widget, df, e_widget):
         widget.setRowCount(len(df.index)+1)     # 첫 행에 Combobox 넣기 위해 행 갯수 1 늘림
         widget.setColumnCount(len(df.columns))
+        widget.horizontalHeader().setDefaultSectionSize(200)    # 열 너비 고정
         e_widget.setRowCount(len(df.index) + 1)      # 첫 행에 Combobox 넣기 위해 행 갯수 1 늘림
         e_widget.setColumnCount(len(df.columns))
+        e_widget.horizontalHeader().setDefaultSectionSize(200)    # 열 너비 고정
         # widget.setHorizontalHeaderLabels(df.columns)
         # widget.setVerticalHeaderLabels(df.index)
         for row_index, row in enumerate(df.index):      # 정비 진행할 TableWidget 생성 -> widget
@@ -115,6 +119,7 @@ class MyWindow(QMainWindow, form_class):
             cb.addItem("우편번호")
             cb.addItem("사업자번호")
             widget.setCellWidget(0, i, cb)
+
     def setting_red(self, e_widget, j, i, target_data, target):       # 진단 시 오류 값 다홍색으로 변경
         e_widget.item(j, i).setBackground(QtGui.QColor(255, 102, 102))
         if target_data not in target:
