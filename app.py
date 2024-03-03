@@ -9,6 +9,10 @@ from PyQt5.QtCore import Qt
 from PyQt5 import uic, QtGui, sip
 
 form_class = uic.loadUiType('initial_screen.ui')[0]
+
+df_postal = pd.read_pickle("df_postal.pkl")
+print(df_postal)
+
 class MyWindow(QMainWindow, form_class):
     def __init__(self):
         super().__init__()
@@ -268,7 +272,12 @@ class MyWindow(QMainWindow, form_class):
                     else:
                         self.setting_red(e_widget, j, i, target_data, target)
 
-
+                elif cBox == "우편번호":
+                    zip_code = df_postal.loc[df_postal['우편번호'] == int(row_data.text()), ['우편번호']].values
+                    if str(zip_code) == '[]':
+                        self.setting_red(e_widget, j, i, target_data, target)
+                    else:
+                        self.setting_white(e_widget, j, i, target_data, target)
 
         index = 0
         for z in target:    # 테스트용 출력
