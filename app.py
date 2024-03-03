@@ -271,7 +271,6 @@ class MyWindow(QMainWindow, form_class):
                         self.setting_white(e_widget, j, i, target_data, target)
                     else:
                         self.setting_red(e_widget, j, i, target_data, target)
-
                 elif cBox == "우편번호":
                     zip_code = df_postal.loc[df_postal['우편번호'] == int(row_data.text()), ['우편번호']].values
                     if str(zip_code) == '[]':
