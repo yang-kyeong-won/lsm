@@ -137,7 +137,7 @@ class MyWindow(QMainWindow, form_class):
 
     # 진단 버튼 클릭 함수
     def pushBt_diagnosis_clicked(self, state, widget, e_widget, target):
-        widget.setFixedSize(1171,360)
+        # widget.setFixedSize(1171,360)
         e_widget.show()
         # 열 개수 추출
         col_count = e_widget.columnCount()
@@ -156,7 +156,7 @@ class MyWindow(QMainWindow, form_class):
                 elif row_data.text() == "-" or row_data.text().isspace():    # 모든 열에서 "-", " " 값 비허용
                     self.setting_red(e_widget, j, i, target_data, target)
                 elif cBox == "금액/수량/비율":    # "금액/수량/비율" 규칙 숫자 아닌 값 비허용
-                    if not row_data.text().isdigit():
+                    if not row_data.text().isdigit() and row_data.text() == '.':
                         self.setting_red(e_widget, j, i, target_data, target)
                     else:
                         self.setting_white(e_widget, j, i, target_data, target)
@@ -271,7 +271,7 @@ class MyWindow(QMainWindow, form_class):
                         self.setting_white(e_widget, j, i, target_data, target)
                     else:
                         self.setting_red(e_widget, j, i, target_data, target)
-                elif cBox == "우편번호":
+                elif cBox == "우편번호":        # 우편번호 데이터프레임 내에 없는 값 비허용
                     zip_code = df_postal.loc[df_postal['우편번호'] == int(row_data.text()), ['우편번호']].values
                     if str(zip_code) == '[]':
                         self.setting_red(e_widget, j, i, target_data, target)
