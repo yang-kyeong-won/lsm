@@ -53,7 +53,17 @@ class MyWindow(QMainWindow, form_class):
         self.pushBt_improve.clicked.connect(
             lambda state, widget=self.tableWidget, target = self.target, e_widget=self.e_tableWidget: self.pushBt_improve_clicked(state, widget, target, e_widget))
 
-    # 파일선택 버튼 클릭 함수
+        self.vs1 = self.tableWidget.verticalScrollBar()
+        self.vs2 = self.e_tableWidget.verticalScrollBar()
+
+        self.vs1.valueChanged.connect(self.move_scrollBar)
+        self.vs2.valueChanged.connect(self.move_scrollBar)
+
+    def move_scrollBar(self, value):        # tableWidget, e_tableWidget 스크롤바 동기화
+        self.vs1.setValue(value)
+        self.vs2.setValue(value)
+
+        # 파일선택 버튼 클릭 함수
     def pushBt_file_chc_clicked(self, state, widget, announce, fileName, rows, columns, e_widget):
         # 파일 경로 추출
         fname = QFileDialog.getOpenFileName(self, '파일 열기', '', 'All File(*)', 'All Files(*.*)')
