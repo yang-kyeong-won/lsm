@@ -34,8 +34,13 @@ class MyWindow(QMainWindow, form_class):
                                                                                                             columns,
                                                                                                             e_widget))
         # 진단 버튼 클릭
-        self.pushBt_diagnosis.clicked.connect(
-            lambda state, widget=self.tableWidget, e_widget=self.e_tableWidget, target = self.target: self.pushBt_diagnosis_clicked(state, widget, e_widget, target))
+        self.pushBt_diagnosis.clicked.connect(lambda state,
+                                                     widget=self.tableWidget,
+                                                     e_widget=self.e_tableWidget,
+                                                     target = self.target: self.pushBt_diagnosis_clicked(state,
+                                                                                                         widget,
+                                                                                                         e_widget,
+                                                                                                         target))
 
         self.pushBt_restart.clicked.connect(lambda state,
                                                     widget=self.tableWidget,
@@ -50,18 +55,23 @@ class MyWindow(QMainWindow, form_class):
                                                                                                              rows,
                                                                                                              columns,
                                                                                                              e_widget))
-        self.pushBt_improve.clicked.connect(
-            lambda state, widget=self.tableWidget, target = self.target, e_widget=self.e_tableWidget: self.pushBt_improve_clicked(state, widget, target, e_widget))
+        self.pushBt_improve.clicked.connect(lambda state,
+                                                   widget=self.tableWidget,
+                                                   target = self.target,
+                                                   e_widget=self.e_tableWidget: self.pushBt_improve_clicked(state,
+                                                                                                            widget,
+                                                                                                            target,
+                                                                                                            e_widget))
 
         self.vs1 = self.tableWidget.verticalScrollBar()
         self.vs2 = self.e_tableWidget.verticalScrollBar()
-
         self.vs1.valueChanged.connect(self.move_scrollBar)
         self.vs2.valueChanged.connect(self.move_scrollBar)
 
     def move_scrollBar(self, value):        # tableWidget, e_tableWidget 스크롤바 동기화
         self.vs1.setValue(value)
         self.vs2.setValue(value)
+
 
         # 파일선택 버튼 클릭 함수
     def pushBt_file_chc_clicked(self, state, widget, announce, fileName, rows, columns, e_widget):
@@ -142,12 +152,12 @@ class MyWindow(QMainWindow, form_class):
         e_widget.item(j, i).setBackground(QtGui.QColor("white"))
         if target_data in target:
             target.remove(target_data)
-    def setting_blue(self, widget, x, y):  # 정비 시 정비 완료된 셀 푸른색으로 변경
+    def setting_blue(self, widget, x, y, target_data, result):  # 정비 시 정비 완료된 셀 푸른색으로 변경
         widget.item(x, y).setBackground(QtGui.QColor(204, 255, 255))  # 해당 셀 배경색 푸른색으로 변경
+        result.append(target_data)
 
     # 진단 버튼 클릭 함수
     def pushBt_diagnosis_clicked(self, state, widget, e_widget, target):
-        # widget.setFixedSize(1171,360)
         e_widget.show()
         # 열 개수 추출
         col_count = e_widget.columnCount()
@@ -302,7 +312,6 @@ class MyWindow(QMainWindow, form_class):
         fileName.clear()
         rows.clear()
         columns.clear()
-        widget.setFixedSize(1171, 721)  # TableWidget 사이즈 원래대로
         e_widget.hide()     # 기존 비교 위한 TableWidget 숨김처리
 
     # 정비 버튼 클릭 함수
@@ -315,21 +324,26 @@ class MyWindow(QMainWindow, form_class):
             # 공통 부분
             if widget.item(x, y).text() == "-" or widget.item(x, y).text().isspace():  # 해당 셀 값이 스페이스 바 또는 - 인지 판별
                 widget.setItem(x, y, QTableWidgetItem(""))  # 해당 셀 값 공백으로 변경
-                self.setting_blue(widget, x, y)
-                result.append(target_data)
+                self.setting_blue(widget, x, y, target_data, result)
             elif cBox == "금액/수량/비율":    # "금액/수량/비율" 규칙 숫자 아닌 값 비허용
                 widget.setItem(x, y, QTableWidgetItem(re.sub(r'[^0-9]', '', widget.item(x, y).text())))
-                self.setting_blue(widget, x, y)
-                result.append(target_data)
+                self.setting_blue(widget, x, y, target_data, result)
             elif cBox == "여부 > Y, N":  # "여부 > Y, N" 규칙 "Y", "N" 아닌 값 비허용
                 if widget.item(x, y).text() == "y":
                     widget.setItem(x, y, QTableWidgetItem("Y"))
-                    self.setting_blue(widget, x, y)
-                    result.append(target_data)
+                    self.setting_blue(widget, x, y, target_data, result)
                 elif widget.item(x, y).text() == "n":
                     widget.setItem(x, y, QTableWidgetItem("N"))
-                    self.setting_blue(widget, x, y)
-                    result.append(target_data)
+                    self.setting_blue(widget, x, y, target_data, result)
+                else:
+                    widget.item(x, y).setBackground(QtGui.QColor(255, 102, 102))
+            elif cBox == "여부 > 남, 여":       # "M, m" → "남" 통일, "F, f" → "여" 통일, 나머지는 수정 불가 셀 다홍색 표시
+                if widget.item(x, y).text() == "M" or widget.item(x, y).text() == "m":
+                    widget.setItem(x, y, QTableWidgetItem("남"))
+                    self.setting_blue(widget, x, y, target_data, result)
+                elif widget.item(x, y).text() == "F" or widget.item(x, y).text() == "f":
+                    widget.setItem(x, y, QTableWidgetItem("여"))
+                    self.setting_blue(widget, x, y, target_data, result)
                 else:
                     widget.item(x, y).setBackground(QtGui.QColor(255, 102, 102))
             elif cBox == "전화번호":
@@ -364,10 +378,24 @@ class MyWindow(QMainWindow, form_class):
                 print(phone_no)
                 if re.compile(r"\d{3}-\d{4}-\d{4}").match(phone_no) or re.compile(r"\d{3}-\d{3}-\d{4}").match(phone_no) or re.compile(r"\d{2}-\d{3}-\d{4}").match(phone_no) or re.compile(r"\d{2}-\d{4}-\d{4}").match(phone_no) or re.compile(r"\d{4}-\d{4}").match(phone_no):
                     widget.setItem(x, y, QTableWidgetItem(phone_no))
-                    self.setting_blue(widget, x, y)
-                    result.append(target_data)
+                    self.setting_blue(widget, x, y, target_data, result)
                 else:
                     widget.item(x, y).setBackground(QtGui.QColor(255, 102, 102))
+            elif cBox == "날짜 > YYYY-MM-DD HH24:MI:SS":
+                if widget.item(x, y).text().isdigit() and len(widget.item(x, y).text()) == 14:
+                    try:
+                        date = datetime.datetime.strptime(widget.item(x, y).text(), "%Y-%m-%d %H:%M:%S")
+                        widget.setItem(x, y, QTableWidgetItem(date))
+                        self.setting_blue(widget, x, y, target_data, result)
+                    except ValueError:
+                        continue
+                else:
+                    widget.item(x, y).setBackground(QtGui.QColor(255, 102, 102))
+            elif cBox == "우편번호":        # 우편번호는 수정불가 데이터이므로 기존 테이블위젯에 셀 다홍색 표시 유지
+                zip_code = df_postal.loc[df_postal['우편번호'] == int(widget.item(x, y).text()), ['우편번호']].values
+                if str(zip_code) == '[]':
+                    widget.item(x, y).setBackground(QtGui.QColor(255, 102, 102))
+
         print(result)
 
 if __name__ == '__main__':

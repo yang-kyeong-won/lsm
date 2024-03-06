@@ -385,9 +385,9 @@ color: rgb(255, 255, 255);</string>
     <property name="geometry">
      <rect>
       <x>0</x>
-      <y>99</y>
+      <y>660</y>
       <width>1483</width>
-      <height>941</height>
+      <height>30</height>
      </rect>
     </property>
     <property name="sizePolicy">
