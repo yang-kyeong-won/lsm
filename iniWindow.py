@@ -8,12 +8,12 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtCore import Qt
 from PyQt5 import uic, QtGui, sip
 
-form_class = uic.loadUiType('initial_screen.ui')[0]
+form_ini = uic.loadUiType('initial_screen.ui')[0]
+form_imp = uic.loadUiType('improve_screen.ui')[0]
 
 df_postal = pd.read_pickle("df_postal.pkl")
-print(df_postal)
 
-class MyWindow(QMainWindow, form_class):
+class iniWindow(QMainWindow, form_ini):
     def __init__(self):
         super().__init__()
         self.setupUi(self)
@@ -41,7 +41,22 @@ class MyWindow(QMainWindow, form_class):
                                                                                                          widget,
                                                                                                          e_widget,
                                                                                                          target))
+        #self.pushBt_improve.clicked.connect(lambda state,
+           #                                        widget=self.tableWidget,
+          #                                         target=self.target,
+           #                                        e_widget=self.e_tableWidget: self.pushBt_improve_clicked(state,
+          #                                                                                                  widget,
+         #                                                                                                   target,
+           #                                                                                                 e_widget))
+        self.pushBt_improve.clicked.connect(self.pushBt_improve_clicked)
 
+      #  self.pushBt_initial.clicked.connect(lambda state,
+            #                                        widget=self.tableWidget,
+           #                                         target=self.target,
+               #                                     e_widget=self.e_tableWidget: self.pushBt_restart_clicked(state,
+                      #                                                                                       widget,
+                     #                                                                                        target,
+                   #                                                                                          e_widget))
         self.pushBt_restart.clicked.connect(lambda state,
                                                     widget=self.tableWidget,
                                                     announce=self.nochcFile_announce,
@@ -55,13 +70,6 @@ class MyWindow(QMainWindow, form_class):
                                                                                                              rows,
                                                                                                              columns,
                                                                                                              e_widget))
-        self.pushBt_improve.clicked.connect(lambda state,
-                                                   widget=self.tableWidget,
-                                                   target = self.target,
-                                                   e_widget=self.e_tableWidget: self.pushBt_improve_clicked(state,
-                                                                                                            widget,
-                                                                                                            target,
-                                                                                                            e_widget))
 
         self.vs1 = self.tableWidget.verticalScrollBar()
         self.vs2 = self.e_tableWidget.verticalScrollBar()
@@ -303,18 +311,30 @@ class MyWindow(QMainWindow, form_class):
             print(str(index) + "번째 열 : " + str(z))
             index = index + 1
 
+    # 초기화 버튼 클릭 함수
+    #def pushBt_initial_clicked(self, state, widget, target, e_widget):
+     # self.close()     # main window 숨김
+     #target.clear()
+     #   e_widget.clear()
+     #   e_widget.hide()
     # 재시작 버튼 클릭 함수
-    def pushBt_restart_clicked(self, state, widget, announce, fileName, rows, columns, e_widget):
+    def pushBt_restart_clicked(self, state, widget, fileName, rows, columns, e_widget):
         widget.clear()
         widget.setRowCount(0)
         widget.setColumnCount(0)
-        announce.setText("선택된 csv 파일이 없습니다.")
         fileName.clear()
         rows.clear()
         columns.clear()
         e_widget.hide()     # 기존 비교 위한 TableWidget 숨김처리
 
     # 정비 버튼 클릭 함수
+    def pushBt_improve_clicked(self):
+        file_name = self.txtBr_file_nm.toPlainText()
+        self.imp_window = impWindow(file_name)
+        self.close()        # iniWindow 닫기
+        self.imp_window.show()
+
+    """
     def pushBt_improve_clicked(self, state, widget, target, e_widget):
         result = list()
         for target_data in target:
@@ -397,9 +417,20 @@ class MyWindow(QMainWindow, form_class):
                     widget.item(x, y).setBackground(QtGui.QColor(255, 102, 102))
 
         print(result)
+    """
+
+class impWindow(QMainWindow, form_imp):
+    def __init__(self, file_name):      # 인자로 파일명 받기
+        super().__init__()
+        self.setupUi(self)
+
+        self.txtBr_file_nm.setText(str(file_name))      # 파일명 세팅하기
+        self.show()
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    mywindow = MyWindow()
-    mywindow.show()
+    ini_window = iniWindow()
+    ini_window.show()
     app.exec_()
+
+
